@@ -139,6 +139,11 @@ async function checkUserVacancies(user) {
               );
 
             } catch (matchErr) {
+              const userExists = await dbQuery.get('SELECT 1 FROM users WHERE id = ?', [user.id]);
+              if (!userExists) {
+                console.log(`User ${user.email} was deleted during scanning. Skipping remaining match operations.`);
+                return;
+              }
               console.error(`Failed matching vacancy ${extId} for ${user.email}:`, matchErr.message);
             }
           });

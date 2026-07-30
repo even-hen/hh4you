@@ -12,6 +12,7 @@ let matchesPage = 1;
 const matchesLimit = 25;
 let matchesHasMore = false;
 let isLoadingMatches = false;
+let matchesRequestVersion = 0;
 let matchesTotalCount = 0;
 let matchesNewCount = 0;
 let matchesAppliedCount = 0;
@@ -1046,8 +1047,9 @@ let currentFilter = 'new';
 
 
 async function loadMatches(isAppend = false) {
-    if (isLoadingMatches) return;
+    if (isAppend && isLoadingMatches) return;
     isLoadingMatches = true;
+    const version = ++matchesRequestVersion;
 
     if (!isAppend) {
         matchesPage = 1;
@@ -1073,6 +1075,7 @@ async function loadMatches(isAppend = false) {
     }
 
     const { data, error } = await apiRequest(url);
+    if (version !== matchesRequestVersion) return;
     isLoadingMatches = false;
     if (error || !data) return;
 

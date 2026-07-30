@@ -68,9 +68,11 @@ export class SettingsPage extends BasePage {
 
     /** Set match threshold slider to a percentage value (50-95) */
     async setThreshold(value: number) {
-        await this.thresholdSlider.fill(String(value));
-        // Trigger the oninput handler
-        await this.thresholdSlider.dispatchEvent('input');
+        await this.thresholdSlider.evaluate((el: HTMLInputElement, val) => {
+            el.value = String(val);
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+        }, value);
     }
 
     /** Toggle a job format checkbox by its label text */

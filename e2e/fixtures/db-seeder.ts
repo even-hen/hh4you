@@ -15,6 +15,7 @@ export class DbSeeder {
     private static getDbConnection(): sqlite3.Database {
         const db = new sqlite3.Database(DB_PATH);
         db.configure("busyTimeout", 10000);
+        db.run('PRAGMA foreign_keys = ON;');
         return db;
     }
 

@@ -52,6 +52,9 @@ test.describe('UI: Dashboard & Matches Feed', () => {
         await page.context().addCookies([{ name: 'access_token', value: access_token, url: 'http://127.0.0.1:8000' }]);
         await dashboardPage.goto();
 
+        // Wait for the initial 2 unapplied matches to load, ensuring page stability
+        await expect(dashboardPage.vacancyCards).toHaveCount(2, { timeout: 8000 });
+
         // "All" pill is visible
         await expect(dashboardPage.filterAllPill).toBeVisible();
         await expect(dashboardPage.filterNewPill).toBeVisible();
@@ -80,6 +83,9 @@ test.describe('UI: Dashboard & Matches Feed', () => {
         const { access_token } = await loginRes.json();
         await page.context().addCookies([{ name: 'access_token', value: access_token, url: 'http://127.0.0.1:8000' }]);
         await dashboardPage.goto();
+
+        // Wait for the initial 2 unapplied matches to load, ensuring page stability
+        await expect(dashboardPage.vacancyCards).toHaveCount(2, { timeout: 8000 });
 
         // Switch to "All" so every card is visible regardless of applied status
         await dashboardPage.filterAll();
