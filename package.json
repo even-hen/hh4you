@@ -1,0 +1,32 @@
+{
+  "name": "hh4you",
+  "version": "1.0.0",
+  "description": "HH4YOU - AI Vacancy Matcher & Cover Letter Generator",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "test:e2e": "playwright test",
+    "test:api": "playwright test --project=api",
+    "test:ui": "playwright test --project=chromium",
+    "test:report": "playwright show-report"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "bcryptjs": "^2.4.3",
+    "cheerio": "^1.0.0-rc.12",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.5.2",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.13",
+    "pg": "^8.22.0",
+    "ssh2": "^1.17.0",
+    "uuid": "^14.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^26.1.1",
+    "sqlite3": "^6.0.1"
+  }
+}

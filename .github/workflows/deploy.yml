@@ -1,0 +1,94 @@
+name: Deploy to Beget VPS
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Run Playwright Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Run Playwright tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+  deploy:
+    name: Deploy to Server via SSH
+    needs: test
+    # Only run deploy on direct push to main (not for PRs)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # Останавливать выполнение при любой ошибке
+            set -e
+
+            # Переходим в папку проекта
+            cd /var/www/hh4you
+
+            # Если репозиторий еще не инициализирован
+            if [ -d ".git" ]; then
+              # Обновляем URL удаленного репозитория, чтобы он содержал актуальный токен
+              git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+              git fetch --all --prune
+              git reset --hard origin/main
+            else
+              # Удаляем все временные файлы, кроме .env (убеждаемся, что это сработает)
+              find . -maxdepth 1 ! -name '.env' ! -name '.' -exec rm -rf {} +
+              # Инициализируем репозиторий и подтягиваем ветку main
+              git init
+              git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+              git fetch --depth=1 origin main
+              git checkout -f FETCH_HEAD
+            fi
+
+            # Установка зависимостей
+            npm install --omit=dev
+
+            # Запуск / Перезапуск в PM2
+            if pm2 describe hh4you > /dev/null 2>&1; then
+              echo "Приложение уже запущено в PM2. Перезапускаем..."
+              pm2 restart hh4you --update-env
+            else
+              echo "Первый запуск приложения в PM2..."
+              pm2 start backend/server.js --name "hh4you" --update-env
+            fi
+
+            pm2 save

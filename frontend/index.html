@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="HH4YOU — ИИ-сервис поиска работы: автоматически ищет вакансии на HH.ru, Habr Career и SuperJob, оценивает их по вашему резюме и пишет сопроводительные письма.">
+    <title>ИИ-помощник по поиску работы</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🎯</text></svg>">
+
+    <!-- Modern Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons Link -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app-container">
+
+        <!-- ================= LANDING SCREEN ================= -->
+        <section id="landing-screen" class="landing-wrapper hidden">
+
+            <!-- Landing Header -->
+            <header class="landing-header">
+                <div class="landing-header-inner">
+                    <span class="logo-title"><i class='bx bx-radar pulse'></i> HH4YOU</span>
+                    <button class="btn btn-ghost" id="btn-landing-login" onclick="showAuthScreen()">Войти</button>
+                </div>
+            </header>
+
+            <!-- Hero Section (Two Column Layout) -->
+            <div class="landing-hero">
+                <div class="hero-container">
+                    <div class="hero-text">
+                        <h1 class="hero-title">Загрузите резюме —<br><span class="hero-title-accent">получите идеально подходящие вакансии</span></h1>
+                        <p class="hero-subtitle">ИИ автоматически подберёт вакансии на HH.ru, Habr Career и SuperJob,
+                            сопоставит каждую с вашим опытом и напишет сопроводительные письма.</p>
+
+                        <!-- Hidden file input — triggered by the CTA button -->
+                        <input type="file" id="landing-file-input" accept=".pdf,.txt" class="hidden">
+                        <label for="landing-file-input" class="btn btn-primary btn-glow btn-hero" id="btn-hero-upload">
+                            <i class='bx bx-upload'></i> Загрузить резюме и начать поиск
+                        </label>
+                        <p class="hero-note">Без регистрации · Бесплатный демо-режим · Форматы: PDF, TXT</p>
+                    </div>
+
+                    <!-- Visual Product Preview -->
+                    <div class="hero-preview">
+                        <img src="img/jobot.jpg" alt="Jobot Preview" class="mock-vacancy-card animate-float">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Platform Trust Badges -->
+            <div class="landing-platforms">
+                <div class="platforms-container">
+                    <p class="platforms-title">Ищем новые вакансии <strong>каждые 3 минуты</strong> на крупнейших
+                        площадках:</p>
+                    <div class="platforms-logos">
+                        <span class="platform-logo hh"><i class='bx bx-briefcase'></i> HeadHunter</span>
+                        <span class="platform-logo habr"><i class='bx bx-code-alt'></i> Хабр Карьера</span>
+                        <span class="platform-logo superjob"><i class='bx bx-star'></i> SuperJob</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- How It Works Section -->
+            <div class="landing-steps">
+                <div class="steps-container">
+                    <h2 class="section-title">Как работает HH4YOU</h2>
+                    <p class="section-subtitle">3 простых шага к новой работе без рутины и лишних кликов</p>
+
+                    <div class="steps-grid">
+                        <div class="step-card">
+                            <div class="step-num">01</div>
+                            <div class="step-icon-wrapper"><i class='bx bx-upload'></i></div>
+                            <h3>Загружаете резюме</h3>
+                            <p>Достаточно перетащить файл резюме в формате PDF или TXT. Наш ИИ мгновенно выделит ваши
+                                ключевые навыки и специализацию.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-num">02</div>
+                            <div class="step-icon-wrapper"><i class='bx bx-brain'></i></div>
+                            <h3>ИИ подбирает и оценивает</h3>
+                            <p>Мы сканируем вакансии по вашей специализации, а ИИ-помощник оценивает их совместимость с
+                                вашим резюме в процентах.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-num">03</div>
+                            <div class="step-icon-wrapper"><i class='bx bx-send'></i></div>
+                            <h3>Откликаетесь в 1 клик</h3>
+                            <p>Получаете готовое, персонализированное сопроводительное письмо под конкретную вакансию и
+                                переходите к отклику.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Proof Strip -->
+            <div class="landing-stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="landing-stat-platforms-num">3</span>
+                    <span class="stat-label" id="landing-stat-platforms-label">платформы поиска</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-number">300₽</span>
+                    <span class="stat-label">в месяц</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-number">ИИ</span>
+                    <span class="stat-label">анализ каждой вакансии</span>
+                </div>
+            </div>
+
+            <!-- FAQ Section -->
+            <div class="landing-faq">
+                <div class="faq-container">
+                    <h2 class="section-title">Часто задаваемые вопросы</h2>
+                    <p class="section-subtitle">Отвечаем на популярные вопросы о сервисе и технологиях</p>
+
+                    <div class="faq-list">
+                        <details class="faq-item">
+                            <summary class="faq-question">Как ИИ оценивает совместимость вакансий?</summary>
+                            <div class="faq-answer">
+                                <p>Наш алгоритм на базе ИИ сопоставляет требования вакансии (стек технологий,
+                                    необходимый опыт, обязанности) с вашим резюме. Он выставляет оценку совместимости от
+                                    0 до 100% и подробно объясняет сильные стороны и возможные пробелы.</p>
+                            </div>
+                        </details>
+                        <details class="faq-item">
+                            <summary class="faq-question">Безопасно ли загружать резюме?</summary>
+                            <div class="faq-answer">
+                                <p>Абсолютно. Данные вашего резюме используются исключительно для поиска вакансий и
+                                    составления сопроводительных писем. Мы не передаем ваши контакты и персональные
+                                    данные третьим лицам.</p>
+                            </div>
+                        </details>
+                        <details class="faq-item">
+                            <summary class="faq-question">Какие платформы вы поддерживаете?</summary>
+                            <div class="faq-answer">
+                                <p>В данный момент мы собираем и анализируем вакансии с крупнейших русскоязычных
+                                    площадок: HeadHunter, Habr Career (Хабр Карьера) и SuperJob.</p>
+                            </div>
+                        </details>
+                        <details class="faq-item">
+                            <summary class="faq-question">Как часто происходит обновление вакансий?</summary>
+                            <div class="faq-answer">
+                                <p>Фоновый поиск запускается каждые 3 минуты для активных пользователей. Как только ИИ
+                                    находит вакансию с высоким процентом соответствия вашему резюме, вы получаете
+                                    email-уведомление.</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom CTA -->
+            <div class="landing-bottom-cta">
+                <h2>Готовы найти работу быстрее?</h2>
+                <p>Загрузите резюме прямо сейчас — анализ займёт меньше минуты</p>
+                <label for="landing-file-input" class="btn btn-primary btn-glow btn-lg">
+                    <i class='bx bx-upload'></i> Начать бесплатно
+                </label>
+            </div>
+
+            <footer class="landing-footer">
+                <p>© 2026 HH4YOU · <a href="mailto:hh4you@internet.ru">hh4you@internet.ru</a> · <a href="terms.html"
+                        target="_blank">Правовая информация</a></p>
+            </footer>
+        </section>
+
+        <!-- ================= AUTH SCREEN ================= -->
+        <section id="auth-screen" class="auth-wrapper hidden">
+            <div class="auth-card">
+                <button class="auth-close-btn" onclick="showLandingScreen()">&times;</button>
+                <div class="auth-header">
+                    <h1 class="logo-title"><i class='bx bx-radar pulse'></i> HH4YOU</h1>
+                    <p class="logo-subtitle">Ваш персональный ИИ-помощник в карьере</p>
+                </div>
+
+                <div class="auth-tabs" id="auth-tabs-container">
+                    <button id="tab-login" class="tab-btn active" onclick="switchAuthTab('login')">Войти</button>
+                    <button id="tab-register" class="tab-btn" onclick="switchAuthTab('register')">Регистрация</button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form active" onsubmit="handleAuth(event, 'login')">
+                    <div class="input-group">
+                        <label for="login-email">Email</label>
+                        <div class="input-icon-wrapper">
+                            <i class='bx bx-envelope'></i>
+                            <input type="email" id="login-email" required placeholder="name@company.com">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <label for="login-password" style="margin-bottom: 0;">Пароль</label>
+                            <a href="#" onclick="switchAuthTab('forgot'); return false;"
+                                style="font-size: 13px; color: var(--primary); text-decoration: none;">Забыли
+                                пароль?</a>
+                        </div>
+                        <div class="input-icon-wrapper">
+                            <i class='bx bx-lock-alt'></i>
+                            <input type="password" id="login-password" required placeholder="••••••••">
+                        </div>
+                    </div>
+                    <button type="submit" id="btn-login-submit" class="btn btn-primary btn-block">Войти</button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="register-form" class="auth-form" onsubmit="handleAuth(event, 'register')">
+                    <div class="input-group">
+                        <label for="register-email">Email</label>
+                        <div class="input-icon-wrapper">
+                            <i class='bx bx-envelope'></i>
+                            <input type="email" id="register-email" required placeholder="name@company.com">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="register-password">Пароль</label>
+                        <div class="input-icon-wrapper">
+                            <i class='bx bx-lock-alt'></i>
+                            <input type="password" id="register-password" required minlength="6"
+                                placeholder="Минимум 6 символов">
+                        </div>
+                    </div>
+                    <button type="submit" id="btn-register-submit" class="btn btn-primary btn-block">Создать
+                        аккаунт</button>
+                    <p class="auth-terms-note">
+                        Регистрируясь, вы соглашаетесь с <a href="terms.html?tab=terms" target="_blank">Условиями
+                            использования</a> и <a href="terms.html?tab=privacy" target="_blank">Политикой
+                            конфиденциальности</a>
+                    </p>
+                </form>
+
+                <!-- Forgot Password Form -->
+                <form id="forgot-form" class="auth-form" onsubmit="handleForgotPassword(event)">
+                    <div class="forgot-inputs-wrapper">
+                        <div class="input-group">
+                            <label for="forgot-email">Email</label>
+                            <div class="input-icon-wrapper">
+                                <i class='bx bx-envelope'></i>
+                                <input type="email" id="forgot-email" required placeholder="name@company.com">
+                            </div>
+                        </div>
+                        <button type="submit" id="btn-forgot-submit" class="btn btn-primary btn-block">Восстановить
+                            пароль</button>
+                        <div style="margin-top: 15px; text-align: center;">
+                            <a href="#" onclick="switchAuthTab('login'); return false;"
+                                style="font-size: 13px; color: var(--primary); text-decoration: none;">Вернуться к
+                                входу</a>
+                        </div>
+                    </div>
+                    <div class="forgot-success-wrapper hidden" style="text-align: center;">
+                        <div style="font-size: 40px; color: var(--success); margin-bottom: 10px; text-align: center;">
+                            <i class='bx bx-mail-send'></i>
+                        </div>
+                        <h4 style="margin-bottom: 8px; font-weight: 600;">Ссылка отправлена!</h4>
+                        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 15px;">
+                            Мы отправили письмо с инструкциями на email.<br>
+                            Если письма нет во входящих, пожалуйста, проверьте <strong>папку «Спам»</strong>.
+                        </p>
+                        <a href="#" onclick="switchAuthTab('login'); return false;"
+                            style="font-size: 13px; color: var(--primary); text-decoration: none; display: inline-block;">Вернуться
+                            к входу</a>
+                    </div>
+                </form>
+
+                <!-- Reset Password Form -->
+                <form id="reset-password-form" class="auth-form" onsubmit="handleResetPassword(event)">
+                    <input type="hidden" id="reset-token-input">
+                    <div class="input-group">
+                        <label for="reset-new-password">Новый пароль</label>
+                        <div class="input-icon-wrapper">
+                            <i class='bx bx-lock-alt'></i>
+                            <input type="password" id="reset-new-password" required minlength="6"
+                                placeholder="Минимум 6 символов">
+                        </div>
+                    </div>
+                    <button type="submit" id="btn-reset-submit" class="btn btn-primary btn-block">Сохранить новый
+                        пароль</button>
+                </form>
+
+            </div>
+        </section>
+
+
+
+        <!-- ================= MAIN APP SCREEN (registered users) ================= -->
+        <section id="main-app" class="app-layout hidden">
+            <!-- Desktop Top Header -->
+            <header class="app-header">
+                <div class="app-header-inner">
+                    <div class="header-brand">
+                        <a href="#" onclick="switchView('dashboard'); return false;" class="logo-title">
+                            <i class='bx bx-radar pulse'></i> HH4YOU
+                        </a>
+                        <p class="logo-subtitle"> Персональный ИИ-помощник по поиску работы</p>
+                    </div>
+                    <div class="header-actions">
+                        <div class="header-user-info">
+                            <span id="user-email-display" class="header-user-email">email@demo.com</span>
+                            <span id="user-tier-badge" class="tier-badge">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Mobile Header -->
+            <header class="mobile-header">
+                <span class="logo-title"><i class='bx bx-radar pulse'></i> HH4YOU</span>
+                <div class="mobile-header-actions">
+                    <button class="btn btn-secondary btn-sm logout-mobile-btn" onclick="handleLogout()">
+                        <i class='bx bx-log-out-circle'></i> Выйти
+                    </button>
+                </div>
+            </header>
+
+            <!-- Sidebar Navigation -->
+            <aside class="app-sidebar">
+                <nav class="sidebar-nav">
+                    <button id="nav-dashboard" class="nav-item active" onclick="switchView('dashboard')">
+                        <i class='bx bx-grid-alt'></i> Вакансии
+                    </button>
+                    <button id="nav-search-settings" class="nav-item" onclick="switchView('search-settings')">
+                        <i class='bx bx-slider-alt'></i> Настройки
+                    </button>
+                    <button id="nav-cv" class="nav-item" onclick="openCvModal()">
+                        <i class='bx bx-file'></i> Резюме
+                    </button>
+                    <div class="sidebar-divider"></div>
+                    <button id="nav-logout" class="nav-item logout-btn" onclick="handleLogout()">
+                        <i class='bx bx-log-out-circle'></i> Выйти
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Main App Content -->
+            <main class="app-content-area">
+                <!-- Matches Feed View -->
+                <div id="view-dashboard" class="content-view active">
+                    <div class="matches-list-section">
+                        <!-- Feed Filter Bar -->
+                        <div class="feed-filter-bar">
+                            <div class="filter-pills-container">
+                                <button class="filter-pill active" data-filter="new" onclick="setFeedFilter('new')">
+                                    Новые <span id="badge-count-new" class="filter-badge">0</span>
+                                </button>
+                                <button class="filter-pill" data-filter="all" onclick="setFeedFilter('all')">
+                                    Все <span id="badge-count-all" class="filter-badge">0</span>
+                                </button>
+                            </div>
+                            <div class="custom-dropdown" id="matches-sort-dropdown">
+                                <button class="dropdown-trigger" onclick="toggleSortDropdown(event)">
+                                    <i class='bx bx-sort-alt-2'></i>
+                                    <span id="sort-current-val">Новые</span>
+                                    <i class='bx bx-chevron-down trigger-arrow'></i>
+                                </button>
+                                <div class="dropdown-menu hidden" id="sort-dropdown-menu">
+                                    <div class="dropdown-item" data-value="new" onclick="selectSortOption('new')">Новые
+                                    </div>
+                                    <div class="dropdown-item" data-value="match" onclick="selectSortOption('match')">
+                                        Match</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="sub-reminder-banner-container"></div>
+                        <div id="matches-grid" class="matches-grid">
+                            <!-- Dynamically loaded match cards will go here -->
+                        </div>
+                        <!-- Sentinel for pagination / lazy loading -->
+                        <div id="matches-sentinel" class="matches-sentinel"></div>
+                        <!-- Empty State -->
+                        <div id="matches-empty-state" class="empty-state hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Profile / Preferences Screen Wrapper -->
+                <div id="view-profile" class="content-view">
+                    <div class="profile-layout">
+                        <div id="view-search-settings" class="profile-sub-view">
+                            <div class="panel glass-panel settings-panel-centered">
+                                <h3 class="panel-title-settings"><i class='bx bx-slider-alt'></i> Настройка поиска</h3>
+                                <form id="preferences-form" onsubmit="saveSettings(event)">
+
+                                    <!-- 1. Professional Role -->
+                                    <div class="form-group border-bottom-group">
+                                        <div class="role-box-header">
+                                            <label for="role-select">Профессиональная роль</label>
+                                        </div>
+                                        <div class="role-select-wrapper">
+                                            <select id="role-select" required>
+                                                <option value="" disabled selected>Выберите роль...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- 2. Job format Preferences & City -->
+                                    <div class="form-group border-bottom-group">
+                                        <label>Формат работы</label>
+                                        <div class="format-toggle-group">
+                                            <label class="toggle-option">
+                                                <input type="checkbox" name="job-format" value="remote"
+                                                    onchange="toggleSettingsCityRequirement()">
+                                                <span class="toggle-card">Удалённо</span>
+                                            </label>
+                                            <label class="toggle-option">
+                                                <input type="checkbox" name="job-format" value="hybrid"
+                                                    onchange="toggleSettingsCityRequirement()">
+                                                <span class="toggle-card">Гибрид</span>
+                                            </label>
+                                            <label class="toggle-option">
+                                                <input type="checkbox" name="job-format" value="onsite"
+                                                    onchange="toggleSettingsCityRequirement()">
+                                                <span class="toggle-card">Офис</span>
+                                            </label>
+                                        </div>
+
+                                        <div class="form-group mt-10" id="city-input-group">
+                                            <label for="input-city">Город <span id="city-required-marker"
+                                                    class="required-indicator hidden">*</span></label>
+                                            <div class="input-icon-wrapper">
+                                                <i class='bx bx-map'></i>
+                                                <input type="text" id="input-city"
+                                                    placeholder="Москва, Санкт-Петербург...">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 3. Minimum match score -->
+                                    <div class="form-group border-bottom-group">
+                                        <div class="slider-header">
+                                            <label for="input-threshold">Минимальный рейтинг совпадения</label>
+                                            <span id="threshold-val" class="slider-val">75%</span>
+                                        </div>
+                                        <input type="range" id="input-threshold" min="50" max="95" value="75"
+                                            oninput="updateThresholdDisplay(this.value)">
+                                        <span class="field-hint">ИИ оценивает совместимость вакансий с резюме</span>
+                                    </div>
+
+                                    <!-- 4. Email Notifications -->
+                                    <div class="form-group checkbox-group mt-20">
+                                        <label class="switch-container">
+                                            <input type="checkbox" id="input-email-enabled">
+                                            <span class="switch-slider"></span>
+                                            <span class="switch-label">Email-уведомления</span>
+                                        </label>
+                                    </div>
+
+                                    <!-- 5. Save Settings Button -->
+                                    <div class="form-actions mt-15">
+                                        <button type="submit" id="btn-save-preferences"
+                                            class="btn btn-primary btn-block btn-lg">Применить настройки</button>
+                                    </div>
+                                    <div class="settings-footer-links form-terms-link text-center mt-20">
+                                        <a href="terms.html" target="_blank" class="settings-terms-link"><i
+                                                class='bx bx-info-circle'></i>Правовая информация</a>
+                                    </div>
+                                </form>
+
+                                <!-- CV Analysis -->
+                                <div id="cv-analysis-section" class="cv-analysis-section hidden">
+                                    <div class="cv-analysis-header">
+                                        <h3 class="cv-analysis-title"><i class='bx bx-brain'></i>Анализ резюме</h3>
+                                    </div>
+                                    <div id="cv-analysis-box" class="cv-analysis-box">
+                                        <p id="cv-analysis-text" class="cv-analysis-text"></p>
+                                    </div>
+                                    <div class="settings-footer-links analysis-terms-link text-center">
+                                        <a href="terms.html" target="_blank" class="settings-terms-link"><i
+                                                class='bx bx-info-circle'></i>Правовая информация</a>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <footer class="app-footer">
+                            <span>тех.поддержка: <a href="mailto:hh4you@internet.ru">hh4you@internet.ru</a></span>
+                        </footer>
+                    </div>
+            </main>
+            <!-- Mobile Bottom Navigation -->
+            <nav class="mobile-nav">
+                <button id="mobile-nav-dashboard" class="mobile-nav-item active" onclick="switchView('dashboard')">
+                    <i class='bx bx-grid-alt'></i>
+                    <span>Вакансии</span>
+                </button>
+                <button id="mobile-nav-profile" class="mobile-nav-item" onclick="switchView('profile')">
+                    <i class='bx bx-file-blank'></i>
+                    <span>Настройки</span>
+                </button>
+                <button id="mobile-nav-cv" class="mobile-nav-item" onclick="openCvModal()">
+                    <i class='bx bx-file'></i>
+                    <span>Резюме</span>
+                </button>
+            </nav>
+        </section>
+
+        <!-- ================= GUEST APP SHELL ================= -->
+        <section id="guest-app" class="app-layout hidden">
+            <!-- Guest Desktop Header -->
+            <header class="app-header">
+                <div class="app-header-inner">
+                    <div class="header-brand">
+                        <span class="logo-title"><i class='bx bx-radar pulse'></i> HH4YOU</span>
+                        <p class="logo-subtitle"> Персональный ИИ-помощник по поиску работы</p>
+                    </div>
+                    <div class="header-actions">
+                        <span class="guest-demo-badge"><i class='bx bx-user'></i> Гостевой режим</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Guest Mobile Header -->
+            <header class="mobile-header">
+                <span class="logo-title"><i class='bx bx-radar pulse'></i> HH4YOU</span>
+                <div class="mobile-header-actions">
+                    <span class="guest-demo-badge" style="font-size: 12px; padding: 4px 8px; margin: 0;"><i
+                            class='bx bx-user'></i> Демо</span>
+                    <button class="btn btn-secondary btn-sm logout-mobile-btn" onclick="handleLogout()">
+                        <i class='bx bx-log-out-circle'></i> Выйти
+                    </button>
+                </div>
+            </header>
+
+            <!-- Guest Sidebar Navigation -->
+            <aside class="app-sidebar">
+                <nav class="sidebar-nav">
+                    <button id="guest-nav-dashboard" class="nav-item active" onclick="guestSwitchView('dashboard')">
+                        <i class='bx bx-grid-alt'></i> Вакансии
+                    </button>
+                    <button id="guest-nav-search-settings" class="nav-item"
+                        onclick="guestSwitchView('search-settings')">
+                        <i class='bx bx-slider-alt'></i> Настройки поиска
+                    </button>
+                    <div class="sidebar-divider"></div>
+                    <button id="guest-nav-logout" class="nav-item logout-btn" onclick="handleLogout()">
+                        <i class='bx bx-log-out-circle'></i> Выйти
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Guest Main Content -->
+            <main class="app-content-area">
+                <!-- Guest Matches Feed -->
+                <div id="guest-view-dashboard" class="content-view active">
+
+                    <div class="matches-list-section">
+                        <div id="guest-matches-grid" class="matches-grid">
+                            <!-- Guest scan state & real matches rendered here -->
+                        </div>
+                        <div id="guest-matches-empty" class="empty-state hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Guest Search Settings View -->
+                <div id="guest-view-search-settings" class="content-view">
+                    <div class="profile-layout">
+                        <div class="panel glass-panel settings-panel-centered">
+                            <h3 class="panel-title-settings"><i class='bx bx-slider-alt'></i> Настройки поиска</h3>
+                            <form id="guest-preferences-form" onsubmit="saveSettings(event)">
+
+                                <!-- Professional Role -->
+                                <div class="form-group border-bottom-group">
+                                    <div class="role-box-header">
+                                        <label for="guest-role-select">Профессиональная роль</label>
+                                    </div>
+                                    <div class="role-select-wrapper">
+                                        <select id="guest-role-select" required>
+                                            <option value="" disabled selected>Выберите роль...</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Job format -->
+                                <div class="form-group border-bottom-group guest-disabled-group">
+                                    <label>Формат работы</label>
+                                    <div class="format-toggle-group">
+                                        <label class="toggle-option">
+                                            <input type="checkbox" name="guest-job-format" value="remote" disabled
+                                                class="disabled-control" onchange="toggleSettingsCityRequirement()">
+                                            <span class="toggle-card">Удалённо</span>
+                                        </label>
+                                        <label class="toggle-option">
+                                            <input type="checkbox" name="guest-job-format" value="hybrid" disabled
+                                                class="disabled-control" onchange="toggleSettingsCityRequirement()">
+                                            <span class="toggle-card">Гибрид</span>
+                                        </label>
+                                        <label class="toggle-option">
+                                            <input type="checkbox" name="guest-job-format" value="onsite" disabled
+                                                class="disabled-control" onchange="toggleSettingsCityRequirement()">
+                                            <span class="toggle-card">Офис</span>
+                                        </label>
+                                    </div>
+                                    <span class="field-hint disabled-hint"><i class='bx bx-lock-alt'></i> Доступно после
+                                        регистрации</span>
+
+                                    <div class="form-group mt-10 guest-disabled-group" id="guest-city-input-group">
+                                        <label for="guest-input-city">Город <span id="guest-city-required-marker"
+                                                class="required-indicator hidden">*</span></label>
+                                        <div class="input-icon-wrapper">
+                                            <i class='bx bx-map'></i>
+                                            <input type="text" id="guest-input-city" disabled class="disabled-control"
+                                                placeholder="Москва, Санкт-Петербург...">
+                                        </div>
+                                        <span class="field-hint disabled-hint"><i class='bx bx-lock-alt'></i> Доступно
+                                            после регистрации</span>
+                                    </div>
+                                </div>
+
+                                <!-- Match score — disabled for guests -->
+                                <div class="form-group border-bottom-group guest-disabled-group">
+                                    <div class="slider-header">
+                                        <label>Минимальный рейтинг совпадения</label>
+                                        <span id="guest-threshold-val" class="slider-val">75%</span>
+                                    </div>
+                                    <input type="range" id="guest-input-threshold" min="50" max="95" value="75" disabled
+                                        class="disabled-control" oninput="updateThresholdDisplay(this.value)">
+                                    <span class="field-hint disabled-hint"><i class='bx bx-lock-alt'></i> Доступно после
+                                        регистрации</span>
+                                </div>
+
+                                <!-- Email notifications — disabled for guests -->
+                                <div class="form-group checkbox-group mt-20 guest-disabled-group">
+                                    <label class="switch-container">
+                                        <input type="checkbox" id="guest-input-email-enabled" disabled>
+                                        <span class="switch-slider"></span>
+                                        <span class="switch-label">Уведомления о новых вакансиях</span>
+                                    </label>
+                                    <span class="field-hint disabled-hint"><i class='bx bx-lock-alt'></i> Доступно после
+                                        регистрации</span>
+                                </div>
+
+                                <!-- Save Settings Button -->
+                                <div class="form-actions mt-15">
+                                    <button type="submit" id="guest-btn-save-preferences"
+                                        class="btn btn-primary btn-block btn-lg">
+                                        Применить и начать поиск
+                                    </button>
+                                </div>
+                                <div class="settings-footer-links form-terms-link text-center mt-20">
+                                    <a href="terms.html" target="_blank" class="settings-terms-link"><i
+                                            class='bx bx-info-circle'></i>Правовая информация</a>
+                                </div>
+                            </form>
+
+                            <!-- CV Analysis in guest mode -->
+                            <div id="guest-cv-analysis-section" class="cv-analysis-section hidden">
+                                <div class="cv-analysis-header">
+                                    <h3 class="cv-analysis-title"><i class='bx bx-brain'></i> Анализ резюме</h3>
+                                </div>
+                                <div id="guest-cv-analysis-box" class="cv-analysis-box">
+                                    <p id="guest-cv-analysis-text" class="cv-analysis-text"></p>
+                                </div>
+                                <div class="settings-footer-links analysis-terms-link text-center">
+                                    <a href="terms.html" target="_blank" class="settings-terms-link"><i
+                                            class='bx bx-info-circle'></i>Правовая информация</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="app-footer">
+                        <span>тех.поддержка: <a href="mailto:hh4you@internet.ru">hh4you@internet.ru</a></span>
+                    </footer>
+                </div>
+            </main>
+
+            <!-- Guest Mobile Bottom Navigation -->
+            <nav class="mobile-nav">
+                <button id="guest-mobile-nav-dashboard" class="mobile-nav-item active"
+                    onclick="guestSwitchView('dashboard')">
+                    <i class='bx bx-grid-alt'></i>
+                    <span>Вакансии</span>
+                </button>
+                <button id="guest-mobile-nav-search-settings" class="mobile-nav-item"
+                    onclick="guestSwitchView('search-settings')">
+                    <i class='bx bx-slider-alt'></i>
+                    <span>Настройки</span>
+                </button>
+            </nav>
+        </section>
+
+        <!-- ================= GUEST REGISTER MODAL ================= -->
+        <div id="guest-register-modal" class="modal-backdrop hidden">
+            <div class="guest-register-card glass-panel animate-pop">
+                <div class="modal-header">
+                    <h3><i class='bx bx-crown'></i> Полный доступ к HH4YOU</h3>
+                    <button class="modal-close-btn" onclick="closeGuestRegisterModal()">&times;</button>
+                </div>
+
+                <div class="modal-scroll-body">
+                    <!-- Benefits & Pricing -->
+                    <div class="paywall-benefits">
+                        <div class="paywall-price-block" id="guest-register-price-block">
+                            <span class="price-currency" id="guest-register-price-currency">₽</span>
+                            <span class="price-val" id="guest-register-price-val">300</span>
+                            <span class="price-period" id="guest-register-price-period">в месяц</span>
+                        </div>
+                        <ul class="benefits-list">
+                            <li><i class='bx bx-check-circle'></i> Автоматический поиск вакансий каждые 3 минуты</li>
+                            <li><i class='bx bx-check-circle'></i> Email-уведомления о новых совпадениях</li>
+                            <li><i class='bx bx-check-circle'></i> Сопроводительные письма под каждую вакансию</li>
+                            <li><i class='bx bx-check-circle'></i> Настраиваемый порог совпадения</li>
+                            <li><i class='bx bx-check-circle'></i> Неограниченные обновления резюме</li>
+                        </ul>
+                    </div>
+
+                    <!-- Register + Pay Form -->
+                    <form id="guest-register-form" onsubmit="handleGuestRegisterAndPay(event)">
+                        <div class="form-section-label">Создать аккаунт</div>
+                        <div class="input-group">
+                            <label for="guest-reg-email">Email</label>
+                            <div class="input-icon-wrapper">
+                                <i class='bx bx-envelope'></i>
+                                <input type="email" id="guest-reg-email" required placeholder="your@email.com">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="guest-reg-password">Пароль</label>
+                            <div class="input-icon-wrapper">
+                                <i class='bx bx-lock-alt'></i>
+                                <input type="password" id="guest-reg-password" required minlength="6"
+                                    placeholder="Минимум 6 символов">
+                            </div>
+                        </div>
+
+                        <div id="guest-reg-error" class="form-error hidden"></div>
+
+                        <button type="submit" id="btn-guest-reg-submit"
+                            class="btn btn-primary btn-glow btn-block mt-15 btn-lg">
+                            <i class='bx bx-lock-open-alt'></i> Зарегистрироваться и активировать доступ
+                        </button>
+                        <p class="auth-terms-note text-center">
+                            Регистрируясь, вы соглашаетесь с <a href="terms.html?tab=terms" target="_blank">Условиями
+                                использования</a> и <a href="terms.html?tab=privacy" target="_blank">Политикой
+                                конфиденциальности</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= WELCOME SCREEN (post-registration) ================= -->
+        <div id="welcome-screen" class="welcome-overlay hidden">
+            <div class="welcome-card animate-pop">
+                <div class="welcome-confetti" aria-hidden="true">
+                    <span>🎉</span><span>✨</span><span>🎊</span><span>⭐</span><span>🎉</span>
+                </div>
+                <div class="welcome-icon"><i class='bx bx-check-circle'></i></div>
+                <h2 class="welcome-title">Добро пожаловать!</h2>
+                <div class="welcome-items">
+                    <div class="welcome-item">
+                        <i class='bx bx-shield-check'></i>
+                        <div>
+                            <strong>Подписка активна</strong>
+                            <span>Поиск вакансий запущен</span>
+                        </div>
+                    </div>
+                    <div class="welcome-item">
+                        <i class='bx bx-envelope'></i>
+                        <div>
+                            <strong>Уведомления включены</strong>
+                            <span id="welcome-email-hint">Подходящие вакансии придут на вашу почту</span>
+                        </div>
+                    </div>
+                    <div class="welcome-item welcome-item-warning">
+                        <i class='bx bx-error-circle'></i>
+                        <div>
+                            <strong>Важно: проверьте папку «Спам»</strong>
+                            <span>Первые письма могут попасть туда. Найдите письмо от HH4YOU и нажмите «Не спам» — тогда
+                                все следующие придут в inbox.</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-glow btn-block btn-lg mt-20" onclick="completeGuestOnboarding()">
+                    <i class='bx bx-grid-alt'></i> Перейти к вакансиям
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= BILLING / SUBSCRIPTION LOCK SCREEN ================= -->
+        <div id="billing-overlay" class="modal-backdrop hidden">
+            <div class="billing-card glass-panel text-center animate-pop" style="position: relative;">
+                <button class="modal-close-btn" onclick="handleLogout()">&times;</button>
+                <div class="billing-badge"><i class='bx bx-lock-open-alt'></i></div>
+                <h2 class="billing-title">Требуется подписка</h2>
+                <p class="billing-description">
+                    Чтобы использовать поиск работы и получать уведомления о новых вакансиях,
+                    пожалуйста, оформите месячную подписку.
+                </p>
+
+                <div class="pricing-card">
+                    <span class="price-currency">₽</span>
+                    <span class="price-val">300</span>
+                    <span class="price-period">в месяц</span>
+                </div>
+
+                <ul class="benefits-list">
+                    <li><i class='bx bx-check-circle'></i> Автоматический ежедневный поиск</li>
+                    <li><i class='bx bx-check-circle'></i> Безлимитное обновление и анализ резюме</li>
+                    <li><i class='bx bx-check-circle'></i> Настройка степени соответствия вакансий</li>
+                    <li><i class='bx bx-check-circle'></i> Мгновенные уведомления на почту и сопроводительные письма
+                    </li>
+                </ul>
+
+                <button class="btn btn-primary btn-glow btn-block mt-20" onclick="openPaymentModal()">Активировать
+                    подписку</button>
+            </div>
+        </div>
+
+        <!-- ================= MOCK PAYMENT MODAL ================= -->
+        <div id="payment-modal" class="modal-backdrop hidden">
+            <div class="payment-card glass-panel animate-pop">
+                <div class="modal-header">
+                    <h3><i class='bx bx-credit-card'></i> Оплата подписки</h3>
+                    <button class="modal-close-btn" onclick="closePaymentModal()">&times;</button>
+                </div>
+
+                <div id="yookassa-widget-container"></div>
+            </div>
+        </div>
+
+        <!-- ================= DETAILED MATCH MODAL ================= -->
+        <div id="detail-modal" class="modal-backdrop hidden">
+            <div class="detail-card glass-panel animate-pop">
+                <div class="modal-header">
+                    <div>
+                        <h3 id="modal-vacancy-title">Frontend Engineer</h3>
+                        <div class="modal-company-row">
+                            <span id="modal-vacancy-company" class="modal-company">Tech Corp</span>
+                        </div>
+                    </div>
+                    <div class="modal-header-actions">
+                        <button class="modal-close-btn" onclick="closeDetailModal()">&times;</button>
+                    </div>
+                </div>
+
+                <div class="modal-scroll-body">
+                    <div class="modal-grid-layout">
+                        <!-- Cover Letter Wrapper -->
+                        <div class="modal-cover-letter-wrapper">
+                            <div id="modal-cover-letter" class="code-box-content">
+                                <!-- Tailored letter or Skeleton Loader -->
+                            </div>
+                        </div>
+
+                        <!-- Sidebar Actions -->
+                        <a id="modal-vacancy-url" href="#" target="_blank"
+                            class="btn btn-primary btn-glow btn-block modal-sidebar-btn">
+                            <i class='bx bx-link-external'></i> Вакансия
+                        </a>
+                        <button id="modal-btn-applied" class="btn btn-secondary btn-block modal-sidebar-btn"
+                            onclick="toggleAppliedFromModal(event)">
+                            <i class='bx bx-circle'></i> <span>Просмотрено</span>
+                        </button>
+                        <button id="btn-copy-letter" class="btn btn-secondary btn-block modal-sidebar-btn"
+                            onclick="copyCoverLetter()">
+                            <i class='bx bx-copy'></i> Скопировать письмо
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= UNIFIED CV UPLOAD & PARSE MODAL ================= -->
+        <div id="cv-upload-modal" class="modal-backdrop hidden">
+            <div class="cv-upload-card glass-panel animate-pop">
+                <div class="modal-header">
+                    <h3><i class='bx bx-file-find'></i> Моё резюме</h3>
+                    <button class="modal-close-btn hidden" id="cv-close-btn" onclick="closeCvModal()">&times;</button>
+                </div>
+
+                <div class="modal-scroll-body" id="guest-cv-modal-body">
+
+                    <!-- Phase A: Parsing loader -->
+                    <div id="guest-cv-loader" class="guest-loader-state hidden">
+                        <div class="guest-loader-spinner">
+                            <i class='bx bx-loader-alt bx-spin'></i>
+                        </div>
+                        <p class="guest-loader-title">Читаем ваш файл...</p>
+                        <p class="guest-loader-sub">Извлекаем текст резюме</p>
+                    </div>
+
+                    <!-- Phase B: File parse error -->
+                    <div id="guest-cv-error" class="guest-error-state hidden">
+                        <div class="guest-error-icon"><i class='bx bx-error-circle'></i></div>
+                        <p class="guest-error-title">Не удалось прочитать файл</p>
+                        <p class="guest-error-sub" id="guest-cv-error-msg">Попробуйте ещё раз или вставьте текст
+                            вручную.</p>
+                        <label for="guest-file-retry-input" class="btn btn-secondary mt-10">
+                            <i class='bx bx-refresh'></i> Выбрать другой файл
+                            <input type="file" id="guest-file-retry-input" accept=".pdf,.txt" class="hidden">
+                        </label>
+                    </div>
+
+                    <!-- Phase C: Text area editor & Dropzone for registered users -->
+                    <div id="guest-cv-editor" class="hidden">
+                        <label for="guest-reupload-input" class="cv-dropzone" id="guest-file-dropzone">
+                            <i class='bx bx-cloud-upload upload-icon'></i>
+                            <span class="dropzone-text">Перетащите файл резюме сюда</span>
+                            <span class="dropzone-subtext">Поддерживаемые форматы: PDF, TXT (до 8000 символов)</span>
+                            <span class="btn btn-secondary btn-sm browse-btn">Выбрать файл</span>
+                        </label>
+                        <input type="file" id="guest-reupload-input" accept=".pdf,.txt" class="hidden">
+
+                        <div id="guest-file-status" class="file-status-box hidden">
+                            <i class='bx bx-file file-icon'></i>
+                            <div class="file-info">
+                                <span id="guest-file-name" class="file-name">resume.pdf</span>
+                                <span id="guest-file-size" class="file-size">0 KB</span>
+                            </div>
+                            <button type="button" class="remove-file-btn"
+                                onclick="clearSelectedFile(event)">&times;</button>
+                        </div>
+
+                        <div class="divider">ИЛИ ВСТАВЬТЕ ТЕКСТ ВРУЧНУЮ</div>
+
+                        <div class="paste-area-group">
+                            <textarea id="guest-cv-textarea"
+                                placeholder="Вставьте текст вашего резюме сюда..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Phase D: LLM analysis overlay -->
+                    <div id="guest-cv-llm-loader" class="guest-llm-loader hidden">
+                        <div class="guest-loader-spinner large">
+                            <i class='bx bx-loader-alt bx-spin'></i>
+                        </div>
+                        <p class="guest-loader-title">ИИ анализирует ваше резюме...</p>
+                        <p class="guest-loader-sub">Определяем профессию, оцениваем сильные стороны — займёт около 30
+                            секунд</p>
+                        <div class="llm-progress-steps">
+                            <div class="llm-step active" id="llm-step-1"><i class='bx bx-check-circle'></i> Читаем текст
+                            </div>
+                            <div class="llm-step" id="llm-step-2"><i class='bx bx-loader-alt bx-spin'></i> Определяем
+                                специализацию</div>
+                            <div class="llm-step" id="llm-step-3"><i class='bx bx-time'></i> Анализируем опыт</div>
+                        </div>
+                    </div>
+
+                    <!-- Phase E: LLM error -->
+                    <div id="guest-cv-llm-error" class="guest-error-state hidden">
+                        <div class="guest-error-icon"><i class='bx bx-brain'></i></div>
+                        <p class="guest-error-title">Не удалось проанализировать резюме</p>
+                        <p class="guest-error-sub" id="guest-llm-error-msg">Произошла ошибка при отправке резюме на
+                            анализ.</p>
+                        <button class="btn btn-secondary mt-10" onclick="retryGuestLlm()">
+                            <i class='bx bx-refresh'></i> Попробовать снова
+                        </button>
+                    </div>
+                </div>
+                <div id="guest-cv-footer" class="modal-footer" style="display: none;">
+                    <button type="button" class="btn btn-secondary" onclick="closeCvModal()">Отмена</button>
+                    <button type="button" class="btn btn-primary btn-glow" id="btn-save-cv"
+                        onclick="handleGuestCvSave()">
+                        <i class='bx bx-save'></i> Сохранить
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ================= SETTINGS CONFIRMATION MODAL ================= -->
+        <div id="settings-confirm-modal" class="modal-backdrop hidden">
+            <div class="guest-register-card glass-panel animate-pop" style="max-width: 440px;">
+                <div class="modal-header">
+                    <h3><i class='bx bx-error-alt'
+                            style="color: var(--error); font-size: 24px; vertical-align: middle; margin-right: 8px;"></i>
+                        Изменение настроек</h3>
+                    <button class="modal-close-btn" onclick="closeSettingsConfirmModal()">&times;</button>
+                </div>
+                <div class="modal-scroll-body" style="padding: 10px 0 20px 0;">
+                    <p style="margin-bottom: 20px; line-height: 1.6; font-size: 14px; color: var(--text-muted);">
+                        При изменении настроек все ваши предыдущие результаты поиска будут удалены, а поиск начнется
+                        заново с учетом новых параметров.
+                    </p>
+                    <p style="margin-bottom: 25px; font-weight: 600; font-size: 15px; color: var(--text-main);">
+                        Вы уверены, что хотите применить изменения?
+                    </p>
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button class="btn btn-secondary" onclick="closeSettingsConfirmModal()">Отмена</button>
+                        <button id="btn-confirm-settings-change" class="btn btn-primary btn-glow"
+                            onclick="executeSettingsSave()">Применить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TOAST NOTIFICATION CONTAINER ================= -->
+        <div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+    </div>
+
+    <!-- PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <!-- YooKassa Checkout Widget SDK -->
+    <script src="https://yookassa.ru/checkout-widget/v1/checkout-widget.js"></script>
+    <!-- Frontend logic script -->
+    <script src="app.js"></script>
+</body>
+
+
+</html>

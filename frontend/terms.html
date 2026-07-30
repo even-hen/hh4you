@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Правовая информация, условия использования и политика конфиденциальности сервиса HH4YOU.">
+    <title>Правовая информация — HH4YOU</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🎯</text></svg>">
+
+    <!-- Modern Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons Link -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .terms-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            padding-bottom: 60px;
+        }
+
+        .terms-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .terms-header .logo-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .terms-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .terms-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .terms-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: sticky;
+            top: 40px;
+            align-self: start;
+        }
+
+        .terms-tab-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            transition: all var(--transition-speed) ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .terms-tab-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .terms-tab-btn.active {
+            background: var(--grad-primary);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        .terms-content-pane {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            backdrop-filter: blur(10px);
+            min-height: 500px;
+        }
+
+        @media (max-width: 576px) {
+            .terms-content-pane {
+                padding: 20px;
+            }
+        }
+
+        .terms-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .terms-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .terms-section h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            color: var(--text-purple);
+            font-family: 'Manrope', sans-serif;
+            line-height: 1.3;
+        }
+
+        .terms-section h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .terms-section p {
+            margin-bottom: 15px;
+            color: var(--text-main);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .terms-section ul,
+        .terms-section ol {
+            margin-bottom: 20px;
+            padding-left: 20px;
+            color: var(--text-main);
+            font-size: 14px;
+        }
+
+        .terms-section li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .requisites-box {
+            background: rgba(139, 92, 246, 0.05);
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: 4px 12px 12px 4px;
+            margin-top: 30px;
+        }
+
+        .requisites-title {
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-purple);
+            font-family: 'Manrope', sans-serif;
+            font-size: 16px;
+        }
+
+        .requisites-grid {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 576px) {
+            .requisites-grid {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+        }
+
+        .requisites-label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .requisites-value {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .last-update {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="terms-container">
+        <header class="terms-header">
+            <a href="/" class="logo-title">
+                <i class='bx bx-radar pulse'></i> HH4YOU
+            </a>
+            <a href="/" class="btn btn-secondary">
+                <i class='bx bx-arrow-back'></i> На главную
+            </a>
+        </header>
+
+        <div class="terms-layout">
+            <aside class="terms-sidebar">
+                <button class="terms-tab-btn active" onclick="switchTermsTab('terms')">
+                    <i class='bx bx-file'></i> Условия использования
+                </button>
+                <button class="terms-tab-btn" onclick="switchTermsTab('offer')">
+                    <i class='bx bx-credit-card'></i> Договор-оферта
+                </button>
+                <button class="terms-tab-btn" onclick="switchTermsTab('privacy')">
+                    <i class='bx bx-shield-quarter'></i> Конфиденциальность
+                </button>
+            </aside>
+
+            <main class="terms-content-pane">
+
+                <!-- ================= SECTION 1: TERMS OF USE ================= -->
+                <div id="section-terms" class="terms-section active">
+                    <h1>Пользовательское соглашение сервиса HH4YOU</h1>
+                    <div class="last-update">Последнее обновление: 26 июня 2026 г.</div>
+
+                    <p>Настоящее Пользовательское соглашение (далее — «Соглашение») регулирует отношения между
+                        Администрацией
+                        веб-сайта HH4YOU (далее — «Администрация» или «Сервис») и любым физическим лицом, использующим
+                        функционал Сервиса (далее — «Пользователь»).</p>
+
+                    <h2>1. Общие положения</h2>
+                    <p>Используя Сервис, в том числе просматривая его страницы или загружая файл резюме, Пользователь
+                        подтверждает, что полностью ознакомился, понял и безоговорочно согласился со всеми условиями
+                        настоящего Соглашения, а также с Политикой конфиденциальности.</p>
+                    <p>Сервис предоставляет Пользователю инструменты для автоматического поиска вакансий на сторонних
+                        ресурсах
+                        (HeadHunter, Хабр Карьера, SuperJob) на основе анализа текста резюме, а также генерации
+                        сопроводительных писем с использованием технологий искусственного интеллекта (ИИ).</p>
+
+                    <h2>2. Правила использования Сервиса</h2>
+                    <ul>
+                        <li>Пользователь обязуется загружать исключительно файлы резюме, содержащие достоверную и
+                            актуальную
+                            информацию о его квалификации, опыте работы и навыках.</li>
+                        <li>Пользователь соглашается с тем, что Сервис использует внешние модели искусственного
+                            интеллекта
+                            для анализа данных резюме и генерации текстов.</li>
+                        <li>Пользователь несет единоличную ответственность за сохранение конфиденциальности своего
+                            пароля
+                            и учетных данных, а также за любые действия, совершаемые под его учетной записью.</li>
+                        <li>Запрещается любое использование Сервиса в автоматизированных целях, осуществление парсинга
+                            данных, попытки взлома или обхода
+                            лимитов Сервиса.</li>
+                    </ul>
+
+                    <h2>3. Ограничение ответственности</h2>
+                    <p>Сервис предоставляется на условиях «как есть» (as is). Администрация не гарантирует, что Сервис
+                        будет соответствовать индивидуальным требованиям Пользователя, работать бесперебойно или без
+                        ошибок.</p>
+                    <p>Сервис не выступает в роли работодателя или кадрового агентства. Сервис собирает информацию о
+                        вакансиях
+                        из публичных открытых источников и осуществляет математическое сопоставление. Администрация не
+                        несет
+                        ответственности за актуальность, достоверность и законность вакансий, размещенных на внешних
+                        ресурсах,
+                        а также за результаты собеседований и последующее трудоустройство Пользователя.</p>
+                    <p>Администрация не несет ответственности за любые прямые или косвенные убытки, возникшие вследствие
+                        использования или невозможности использования Сервиса Пользователем.</p>
+
+                    <h2>4. Изменение Соглашения</h2>
+                    <p>Администрация оставляет за собой право в одностороннем порядке изменять условия настоящего
+                        Соглашения.
+                        Новая редакция вступает в силу с момента ее публикации на этой странице.</p>
+
+                    <div class="requisites-box">
+                        <div class="requisites-title">Контакты Администрации</div>
+                        <div class="requisites-grid">
+                            <div class="requisites-label">Владелец Сервиса:</div>
+                            <div class="requisites-value">Зайденберг Иван Михайлович</div>
+                            <div class="requisites-label">Email:</div>
+                            <div class="requisites-value"><a href="mailto:hh4you@internet.ru">hh4you@internet.ru</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= SECTION 2: PUBLIC OFFER ================= -->
+                <div id="section-offer" class="terms-section">
+                    <h1>Договор-оферта об оказании информационных услуг</h1>
+                    <div class="last-update">Последнее обновление: 26 июня 2026 г.</div>
+
+                    <p>Настоящий документ представляет собой официальное публичное предложение (публичную оферту)
+                        физического
+                        лица Зайденберга Ивана Михайловича (далее — «Исполнитель») для любого дееспособного физического
+                        лица
+                        (далее — «Заказчик» или «Пользователь»), которое примет данное предложение на указанных ниже
+                        условиях.</p>
+
+                    <h2>1. Предмет Договора</h2>
+                    <p>Исполнитель обязуется оказать Заказчику услуги по предоставлению доступа к платному функционалу
+                        веб-сервиса
+                        HH4YOU (далее — «Услуги»), а Заказчик обязуется оплатить эти Услуги в соответствии с
+                        установленным
+                        тарифом.</p>
+                    <p>Под платным функционалом понимается:
+                    <ul>
+                        <li>Автоматический фоновый поиск вакансий с интервалом от 3 минут по выбранной специализации;
+                        </li>
+                        <li>Доступ к расширенному ИИ-анализу резюме и совместимости вакансий;</li>
+                        <li>Неограниченная генерация сопроводительных писем под подходящие вакансии;</li>
+                        <li>Email-уведомления о найденных совпадениях.</li>
+                    </ul>
+                    </p>
+
+                    <h2>2. Момент заключения Договора (Акцепт)</h2>
+                    <p>Акцептом (принятием) условий настоящей оферты является совершение Заказчиком одного из следующих
+                        действий:
+                    <ul>
+                        <li>Регистрация учетной записи на Сервисе и проведение оплаты платного доступа;</li>
+                        <li>Преобразование гостевой учетной записи в постоянную с совершением оплаты.</li>
+                    </ul>
+                    С момента совершения акцепта Договор считается заключенным в письменной форме.
+                    </p>
+
+                    <h2>3. Условия оплаты и порядок оказания услуг</h2>
+                    <p>Доступ предоставляется на условиях предоплаты. Стоимость платного доступа составляет 300 (триста)
+                        рублей
+                        Российской Федерации за календарный период, равный 30 (тридцати) суткам.</p>
+                    <p>Оплата производится в электронном виде с помощью банковских карт или иных интегрированных
+                        платежных
+                        методов. Все операции проводятся через подключенного платежного провайдера.</p>
+                    <p>Услуга считается оказанной в полном объеме с момента предоставления Заказчику технического
+                        доступа
+                        к платному функционалу Личного кабинета на оплаченный срок, независимо от того, воспользовался
+                        ли
+                        Заказчик предоставленным функционалом или нет.</p>
+
+                    <h2>4. Порядок возврата денежных средств</h2>
+                    <p>В связи с тем, что доступ предоставляется немедленно после проведения транзакции, и Заказчик
+                        получает
+                        возможность мгновенного использования цифрового контента и ИИ-анализа, денежные средства за уже
+                        начавшийся
+                        период подписки возврату не подлежат (в соответствии со ст. 32 Закона РФ «О защите прав
+                        потребителей» и
+                        ст. 782 ГК РФ, с удержанием фактически понесенных расходов Исполнителя).</p>
+
+                    <div class="requisites-box">
+                        <div class="requisites-title">Реквизиты Исполнителя</div>
+                        <div class="requisites-grid">
+                            <div class="requisites-label">Исполнитель:</div>
+                            <div class="requisites-value">Зайденберг Иван Михайлович</div>
+                            <div class="requisites-label">ИНН:</div>
+                            <div class="requisites-value">665903300305</div>
+                            <div class="requisites-label">Email для связи:</div>
+                            <div class="requisites-value"><a href="mailto:hh4you@internet.ru">hh4you@internet.ru</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= SECTION 3: PRIVACY POLICY ================= -->
+                <div id="section-privacy" class="terms-section">
+                    <h1>Политика конфиденциальности и обработка персональных данных</h1>
+                    <div class="last-update">Последнее обновление: 26 июня 2026 г.</div>
+
+                    <p>Настоящая Политика определяет порядок обработки и защиты персональных данных Пользователей,
+                        которые
+                        могут быть получены при использовании веб-сервиса HH4YOU.</p>
+
+                    <h2>1. Какие данные мы собираем</h2>
+                    <p>Мы собираем только те данные, которые необходимы для функционирования Сервиса и предоставления
+                        услуг:</p>
+                    <ul>
+                        <li><strong>Email-адрес</strong> — используется в качестве логина Пользователя, для отправки
+                            уведомлений
+                            о новых вакансиях, восстановления пароля и коммуникации с поддержкой.</li>
+                        <li><strong>Текст резюме (CV)</strong> — загружается Пользователем в виде файлов PDF, TXT или
+                            вводится вручную.
+                            Используется исключительно для выделения ключевых навыков, определения профессиональной роли
+                            и
+                            анализа соответствия вакансиям.</li>
+                        <li><strong>Параметры поиска</strong> (город, желаемый формат работы, желаемый порог совпадения)
+                            — используются
+                            для фильтрации вакансий.</li>
+                    </ul>
+
+                    <h2>2. Цели обработки данных</h2>
+                    <p>Ваши данные обрабатываются в целях:</p>
+                    <ul>
+                        <li>Обеспечения работоспособности учетной записи и авторизации;</li>
+                        <li>Предоставления услуг по автоматическому сопоставлению вакансий с вашим опытом;</li>
+                        <li>Генерации уникальных сопроводительных писем под конкретные требования работодателей;</li>
+                        <li>Отправки email-оповещений о новых найденных совпадениях.</li>
+                    </ul>
+
+                    <h2>3. Использование ИИ-технологий и передача третьим лицам</h2>
+                    <p>Для детального анализа резюме и написания сопроводительных писем Сервис использует передовые
+                        языковые
+                        модели (ИИ). Пользователь соглашается с тем, что текст его резюме передается через защищенные
+                        API-каналы
+                        в ИИ-провайдеры (например, OpenAI, Google Gemini или аналогичные сервисы) в целях обработки.
+                        Передаваемый
+                        текст не связывается с вашим email-адресом или личными платежными реквизитами.</p>
+                    <p>Мы никогда не продаем ваши персональные данные и не передаем их рекламным сетям или иным
+                        посторонним лицам.</p>
+
+                    <h2>4. Хранение и удаление данных</h2>
+                    <p>Все данные хранятся в защищенной базе данных на сервере. Пароли пользователей шифруются с
+                        использованием
+                        криптографического алгоритма bcrypt.</p>
+                    <p>Пользователь может в любой момент отозвать свое согласие на обработку данных и запросить удаление
+                        аккаунта,
+                        обратившись по адресу электронной почты <a
+                            href="mailto:hh4you@internet.ru">hh4you@internet.ru</a>.
+                        В течение 7 рабочих дней все связанные данные Пользователя (включая загруженные резюме,
+                        совпадения и аккаунт)
+                        будут навсегда удалены из базы данных.</p>
+
+                    <div class="requisites-box">
+                        <div class="requisites-title">Ответственный за обработку данных</div>
+                        <div class="requisites-grid">
+                            <div class="requisites-label">Оператор данных:</div>
+                            <div class="requisites-value">Зайденберг Иван Михайлович</div>
+                            <div class="requisites-label">ИНН:</div>
+                            <div class="requisites-value">665903300305</div>
+                            <div class="requisites-label">Контактный email:</div>
+                            <div class="requisites-value"><a href="mailto:hh4you@internet.ru">hh4you@internet.ru</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function switchTermsTab(tabName) {
+            // Remove active class from buttons
+            document.querySelectorAll('.terms-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Add active class to clicked button
+            const activeBtn = document.querySelector(`.terms-tab-btn[onclick*="${tabName}"]`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            // Remove active class from sections
+            document.querySelectorAll('.terms-section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            // Show selected section
+            const activeSec = document.getElementById(`section-${tabName}`);
+            if (activeSec) activeSec.classList.add('active');
+
+            // Update URL hash or search param without reload
+            const newUrl = window.location.pathname + '?tab=' + tabName;
+            window.history.replaceState({ tab: tabName }, document.title, newUrl);
+        }
+
+        // On load, parse search params to activate tab
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get('tab');
+            if (tab && ['terms', 'offer', 'privacy'].includes(tab)) {
+                switchTermsTab(tab);
+            }
+        });
+    </script>
+</body>
+
+</html>
