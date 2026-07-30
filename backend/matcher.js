@@ -13,6 +13,53 @@ if (proxyUrl) {
   }
 }
 
+let gigaChatToken = null;
+let gigaChatTokenExpiresAt = 0;
+let gigaChatTokenPromise = null;
+
+async function getGigaChatToken() {
+  if (gigaChatToken && Date.now() < gigaChatTokenExpiresAt - 60000) {
+    return gigaChatToken;
+  }
+  if (gigaChatTokenPromise) {
+    return gigaChatTokenPromise;
+  }
+
+  const https = require('https');
+  const { v4: uuidv4 } = require('uuid');
+  const agent = new https.Agent({ rejectUnauthorized: false });
+
+  gigaChatTokenPromise = (async () => {
+    try {
+      console.log('[GigaChat] Fetching access token...');
+      const response = await axios.post(
+        'https://ngw.devices.sberbank.ru:9443/api/v2/oauth',
+        'scope=GIGACHAT_API_PERS',
+        {
+          headers: {
+            'Authorization': `Basic ${config.llmApiKey}`,
+            'RqUID': uuidv4(),
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json'
+          },
+          httpsAgent: agent
+        }
+      );
+      gigaChatToken = response.data.access_token;
+      gigaChatTokenExpiresAt = response.data.expires_at;
+      console.log('[GigaChat] Access token refreshed successfully.');
+      return gigaChatToken;
+    } catch (err) {
+      console.error('[GigaChat] Failed to fetch access token:', err.response ? err.response.data : err.message);
+      throw err;
+    } finally {
+      gigaChatTokenPromise = null;
+    }
+  })();
+
+  return gigaChatTokenPromise;
+}
+
 async function callLlm(messages, responseFormat = null) {
   if (process.env.NODE_ENV === 'test') {
     const promptStr = JSON.stringify(messages);
@@ -31,9 +78,24 @@ async function callLlm(messages, responseFormat = null) {
     return '';
   }
 
+  let token = config.llmApiKey;
+  let activeHttpsAgent = httpsAgent;
+  const isGigaChat = config.llmBaseUrl && config.llmBaseUrl.includes('giga.chat');
+
+  if (isGigaChat) {
+    try {
+      token = await getGigaChatToken();
+    } catch (tokenErr) {
+      console.error(`Failed to get GigaChat OAuth token: ${tokenErr.message}`);
+      return '';
+    }
+    const https = require('https');
+    activeHttpsAgent = new https.Agent({ rejectUnauthorized: false });
+  }
+
   const url = `${config.llmBaseUrl.replace(/\/$/, '')}/chat/completions`;
   const headers = {
-    'Authorization': `Bearer ${config.llmApiKey}`,
+    'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json',
     'HTTP-Referer': config.baseUrl || 'http://localhost:8000',
     'X-Title': 'HH4YOU'
@@ -50,26 +112,43 @@ async function callLlm(messages, responseFormat = null) {
   }
 
   const axiosConfig = { headers, timeout: 35000 };
-  if (httpsAgent) {
-    axiosConfig.httpsAgent = httpsAgent;
+  if (activeHttpsAgent) {
+    axiosConfig.httpsAgent = activeHttpsAgent;
     axiosConfig.proxy = false;
   }
 
-  try {
-    const response = await axios.post(url, payload, axiosConfig);
-    if (response.status === 200) {
-      return response.data.choices[0].message.content.trim();
-    } else {
-      console.error(`LLM completion failed with status ${response.status}:`, response.data);
+  let attempts = 0;
+  const maxAttempts = 5;
+  let delayMs = 2000;
+
+  while (attempts < maxAttempts) {
+    try {
+      const response = await axios.post(url, payload, axiosConfig);
+      if (response.status === 200) {
+        return response.data.choices[0].message.content.trim();
+      } else {
+        console.error(`LLM completion failed with status ${response.status}:`, response.data);
+        return '';
+      }
+    } catch (e) {
+      const isRateLimit = e.response && (e.response.status === 429 || (e.response.data && e.response.data.status === 429));
+      if (isRateLimit && attempts < maxAttempts - 1) {
+        attempts++;
+        console.warn(`[LLM_RATE_LIMIT] Received 429 from LLM API. Retrying in ${delayMs}ms (Attempt ${attempts}/${maxAttempts})...`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+        delayMs *= 2; // exponential backoff
+        continue;
+      }
+
+      let errorDetails = '';
+      if (e.response && e.response.data) {
+        errorDetails = ` | Response: ${JSON.stringify(e.response.data)}`;
+      } else if (e.code) {
+        errorDetails = ` | Code: ${e.code}`;
+      }
+      console.error(`Failed to communicate with LLM API: ${e.message}${errorDetails}`);
+      break;
     }
-  } catch (e) {
-    let errorDetails = '';
-    if (e.response && e.response.data) {
-      errorDetails = ` | Response: ${JSON.stringify(e.response.data)}`;
-    } else if (e.code) {
-      errorDetails = ` | Code: ${e.code}`;
-    }
-    console.error(`Failed to communicate with LLM API: ${e.message}${errorDetails}`);
   }
   return '';
 }
