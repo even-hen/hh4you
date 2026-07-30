@@ -88,7 +88,7 @@ e2e/
 * **Runtime:** Node.js (v20+)
 * **Framework:** Express.js
 * **Database:** SQLite (development, local integration tests) & PostgreSQL (production)
-* **AI Engine:** OpenAI-compatible API wrapper (`gpt-4o-mini` by default; easily swappable with local models via Ollama or OpenRouter)
+* **AI Engine:** OpenAI-compatible API wrapper (`gpt-4o-mini` by default; easily swappable with local models via Ollama, OpenRouter, or Sber GigaChat)
 * **Auth & Security:** JWT (JSON Web Tokens), `cookie-parser`, `bcryptjs` password hashing, and endpoint rate-limiting using `express-rate-limit`
 * **Scraping Engine:** Cheerio (HTML parsing), Axios (HTTP requests with retry mechanisms & concurrency throttling)
 * **Notifications:** SMTP-based email notifications via Nodemailer
@@ -112,7 +112,7 @@ cp .env.example .env
 Key environment properties:
 * `DATABASE_URL`: Connection string for Postgres (production).
 * `DB_TYPE`: Set to `sqlite` for lightweight local development and automated E2E testing.
-* `LLM_BASE_URL` & `LLM_API_KEY`: API configurations for GPT-4o-mini, OpenRouter, or a local Ollama instance (`http://localhost:11434/v1`).
+* `LLM_BASE_URL` & `LLM_API_KEY`: API configurations for GPT-4o-mini, OpenRouter, Sber GigaChat (`https://api.giga.chat/v1`), or a local Ollama instance (`http://localhost:11434/v1`).
 * `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`: Outgoing email parameters for real-time notifications.
 * `YOOKASSA_SHOP_ID` & `YOOKASSA_SECRET_KEY`: YooKassa credentials for testing/live payments.
 
