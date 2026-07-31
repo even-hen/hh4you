@@ -16,6 +16,7 @@ if (proxyUrl) {
 let gigaChatToken = null;
 let gigaChatTokenExpiresAt = 0;
 let gigaChatTokenPromise = null;
+let gigaChatQueue = Promise.resolve();
 
 async function getGigaChatToken() {
   if (gigaChatToken && Date.now() < gigaChatTokenExpiresAt - 60000) {
@@ -63,13 +64,13 @@ async function getGigaChatToken() {
 async function callLlm(messages, responseFormat = null) {
   if (process.env.NODE_ENV === 'test') {
     const promptStr = JSON.stringify(messages);
-    if (promptStr.includes('professional role ID')) {
+    if (promptStr.includes('professional role ID') || promptStr.includes('ID профессиональной роли')) {
       if (promptStr.includes('деньги деньги деньги')) return 'INVALID';
       return '96';
     }
-    if (promptStr.includes('cover letter')) return 'Mocked cover letter.';
-    if (promptStr.includes('Compatibility Match Score') || promptStr.includes('Score out of 100')) return JSON.stringify({score: 85, reasoning: 'Mocked reasoning'});
-    if (promptStr.includes('Provide a concise professional summary')) return 'Mocked CV analysis.';
+    if (promptStr.includes('cover letter') || promptStr.includes('сопроводительное письмо')) return 'Mocked cover letter.';
+    if (promptStr.includes('Compatibility Match Score') || promptStr.includes('Score out of 100') || promptStr.includes('совместимости')) return JSON.stringify({score: 85, reasoning: 'Mocked reasoning'});
+    if (promptStr.includes('Provide a concise professional summary') || promptStr.includes('карьерный консультант')) return 'Mocked CV analysis.';
     return 'Mocked response';
   }
 
@@ -78,79 +79,90 @@ async function callLlm(messages, responseFormat = null) {
     return '';
   }
 
-  let token = config.llmApiKey;
-  let activeHttpsAgent = httpsAgent;
   const isGigaChat = config.llmBaseUrl && config.llmBaseUrl.includes('giga.chat');
 
-  if (isGigaChat) {
-    try {
-      token = await getGigaChatToken();
-    } catch (tokenErr) {
-      console.error(`Failed to get GigaChat OAuth token: ${tokenErr.message}`);
-      return '';
-    }
-    const https = require('https');
-    activeHttpsAgent = new https.Agent({ rejectUnauthorized: false });
-  }
+  const executeCall = async () => {
+    let token = config.llmApiKey;
+    let activeHttpsAgent = httpsAgent;
 
-  const url = `${config.llmBaseUrl.replace(/\/$/, '')}/chat/completions`;
-  const headers = {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json',
-    'HTTP-Referer': config.baseUrl || 'http://localhost:8000',
-    'X-Title': 'HH4YOU'
-  };
-
-  const payload = {
-    model: config.llmModelName,
-    messages: messages,
-    temperature: 0.2
-  };
-
-  if (responseFormat) {
-    payload.response_format = responseFormat;
-  }
-
-  const axiosConfig = { headers, timeout: 35000 };
-  if (activeHttpsAgent) {
-    axiosConfig.httpsAgent = activeHttpsAgent;
-    axiosConfig.proxy = false;
-  }
-
-  let attempts = 0;
-  const maxAttempts = 5;
-  let delayMs = 2000;
-
-  while (attempts < maxAttempts) {
-    try {
-      const response = await axios.post(url, payload, axiosConfig);
-      if (response.status === 200) {
-        return response.data.choices[0].message.content.trim();
-      } else {
-        console.error(`LLM completion failed with status ${response.status}:`, response.data);
+    if (isGigaChat) {
+      try {
+        token = await getGigaChatToken();
+      } catch (tokenErr) {
+        console.error(`Failed to get GigaChat OAuth token: ${tokenErr.message}`);
         return '';
       }
-    } catch (e) {
-      const isRateLimit = e.response && (e.response.status === 429 || (e.response.data && e.response.data.status === 429));
-      if (isRateLimit && attempts < maxAttempts - 1) {
-        attempts++;
-        console.warn(`[LLM_RATE_LIMIT] Received 429 from LLM API. Retrying in ${delayMs}ms (Attempt ${attempts}/${maxAttempts})...`);
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-        delayMs *= 2; // exponential backoff
-        continue;
-      }
-
-      let errorDetails = '';
-      if (e.response && e.response.data) {
-        errorDetails = ` | Response: ${JSON.stringify(e.response.data)}`;
-      } else if (e.code) {
-        errorDetails = ` | Code: ${e.code}`;
-      }
-      console.error(`Failed to communicate with LLM API: ${e.message}${errorDetails}`);
-      break;
+      const https = require('https');
+      activeHttpsAgent = new https.Agent({ rejectUnauthorized: false });
     }
+
+    const url = `${config.llmBaseUrl.replace(/\/$/, '')}/chat/completions`;
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': config.baseUrl || 'http://localhost:8000',
+      'X-Title': 'HH4YOU'
+    };
+
+    const payload = {
+      model: config.llmModelName,
+      messages: messages,
+      temperature: 0.2
+    };
+
+    if (responseFormat) {
+      payload.response_format = responseFormat;
+    }
+
+    const axiosConfig = { headers, timeout: 35000 };
+    if (activeHttpsAgent) {
+      axiosConfig.httpsAgent = activeHttpsAgent;
+      axiosConfig.proxy = false;
+    }
+
+    let attempts = 0;
+    const maxAttempts = 5;
+    let delayMs = 2000;
+
+    while (attempts < maxAttempts) {
+      try {
+        const response = await axios.post(url, payload, axiosConfig);
+        if (response.status === 200) {
+          return response.data.choices[0].message.content.trim();
+        } else {
+          console.error(`LLM completion failed with status ${response.status}:`, response.data);
+          return '';
+        }
+      } catch (e) {
+        const isRateLimit = e.response && (e.response.status === 429 || (e.response.data && e.response.data.status === 429));
+        if (isRateLimit && attempts < maxAttempts - 1) {
+          attempts++;
+          console.warn(`[LLM_RATE_LIMIT] Received 429 from LLM API. Retrying in ${delayMs}ms (Attempt ${attempts}/${maxAttempts})...`);
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+          delayMs *= 2; // exponential backoff
+          continue;
+        }
+
+        let errorDetails = '';
+        if (e.response && e.response.data) {
+          errorDetails = ` | Response: ${JSON.stringify(e.response.data)}`;
+        } else if (e.code) {
+          errorDetails = ` | Code: ${e.code}`;
+        }
+        console.error(`Failed to communicate with LLM API: ${e.message}${errorDetails}`);
+        break;
+      }
+    }
+    return '';
+  };
+
+  if (isGigaChat) {
+    const promise = gigaChatQueue.then(() => executeCall());
+    gigaChatQueue = promise.catch(() => {});
+    return promise;
   }
-  return '';
+
+  return executeCall();
 }
 
 async function extractSpecializationFromCv(cvText) {
@@ -161,20 +173,20 @@ async function extractSpecializationFromCv(cvText) {
   const hhRoles = JSON.parse(fs.readFileSync(path.join(__dirname, 'roles', 'hh.json'), 'utf8'));
 
   const rolesListString = Object.entries(hhRoles)
-    .map(([id, name]) => `- ID: "${id}", Name: "${name}"`)
+    .map(([id, name]) => `- ID: "${id}", Название: "${name}"`)
     .join('\n');
 
   const messages = [
     {
       role: 'system',
-      content: 'You are a professional recruiting assistant. Your task is to analyze a candidate\'s CV and select the single most appropriate HH.ru professional role ID from the list below.\n\n' +
-        'List of allowed roles:\n' + rolesListString + '\n\n' +
-        'Output ONLY the selected role ID (just the number). Do NOT write any introduction, quotes, or explanation. Output ONLY the ID.\n' +
-        'CRITICAL: If the provided CV text is invalid, contains gibberish, random characters, or is not a meaningful professional CV/resume containing real professional context, skills, education, or work history, reply with exactly the word "INVALID".'
+      content: 'Ты — профессиональный ассистент по подбору персонала. Твоя задача — проанализировать резюме кандидата и выбрать один наиболее подходящий ID профессиональной роли с сайта HH.ru из списка ниже.\n\n' +
+        'Список доступных ролей:\n' + rolesListString + '\n\n' +
+        'Выведи ТОЛЬКО выбранный ID роли (просто число). Не пиши никакого вступления, кавычек или объяснений. Выведи ТОЛЬКО числовой ID.\n' +
+        'КРИТИЧЕСКИ ВАЖНО: Если предоставленный текст резюме некорректен, содержит бессмысленный набор символов, случайный текст или не является содержательным профессиональным резюме (в котором должны быть реальный профессиональный опыт, навыки, образование или история работы), ответь ровно одним словом «INVALID».'
     },
     {
       role: 'user',
-      content: `Analyze this CV and select the most appropriate professional role ID:\n\n${cvText}`
+      content: `Проанализируй это резюме и выбери наиболее подходящий ID профессиональной роли:\n\n${cvText}`
     }
   ];
 
@@ -205,36 +217,36 @@ async function evaluateMatch(cvText, vacancy) {
   const messages = [
     {
       role: 'system',
-      content: 'You are an expert AI Recruiting Assistant and Senior Technical Recruiter. Your task is to analyze the provided Candidate CV against the Job Description and calculate a definitive Compatibility Match Score on a scale from 0 to 100.\n' +
-        'This evaluation must be objective, analytical, and tailored strictly to the evidence present in the text.\n\n' +
-        'First, analyze the Job Description to identify and extract the following components:\n' +
-        '1. Base Requirements (general requirements, stack, experience duration, etc.)\n' +
-        '2. Mandatory Requirements (critical requirements explicitly marked as mandatory/required/critical)\n' +
-        '3. Nice-to-Have Requirements (preferred skills, bonuses, optional experience)\n' +
-        '4. Responsibilities (key duties, daily tasks, project scopes)\n\n' +
-        'Next, evaluate the Candidate CV against these identified elements and calculate the Compatibility Match Score based on the following rules:\n' +
-        '- Base score starts at 100.\n' +
-        '- Evaluate Base Requirements: Deduct points proportionally to the fraction of missing base requirements. Deduct up to 40 points total (e.g., if 2 out of 4 base requirements are missing (50%), deduct 20 points).\n' +
-        '- Evaluate Mandatory Requirements: Deduct points proportionally to the fraction of missing mandatory requirements. Deduct up to 30 points total (e.g., if 1 out of 2 mandatory requirements is missing (50%), deduct 15 points). If no mandatory requirements are specified, do not deduct points.\n' +
-        '- Evaluate Nice-to-Have Requirements: Add bonus points proportionally to the fraction of matched nice-to-have requirements. Add up to 10 points total (e.g., if 1 out of 2 nice-to-haves is matched (50%), add +5 points). If no nice-to-haves are specified, do not add points.\n' +
-        '- Evaluate Responsibilities Alignment: Compare the candidate\'s past work responsibilities in their CV against the responsibilities of the vacancy. Deduct points proportionally to the fraction of vacancy responsibilities that are missing from or unaddressed by the candidate\'s experience. Deduct up to 20 points total. If no responsibilities are specified, do not deduct points.\n' +
-        '- Mandatory Capping: If any mandatory requirement specified in the vacancy is completely missing from the candidate\'s CV, the final score must be capped at a maximum of 80.\n' +
-        '- The final score must be between 0 and 100 (cap at 100, floor at 0).\n' +
-        '- Be precise and honest. Do not inflate or deflate scores.\n\n' +
-        'Also write a brief explanation (2-3 sentences in Russian) highlighting key matching skills, pros, cons, and clearly stating any missing/mismatched requirements.\n\n' +
-        'Return ONLY a valid JSON object matching this schema:\n' +
+      content: 'Ты — эксперт-ассистент по подбору персонала и ведущий технический рекрутер. Твоя задача — проанализировать предоставленное резюме кандидата на соответствие описанию вакансии и рассчитать окончательный показатель совместимости (Compatibility Match Score) по шкале от 0 до 100.\n' +
+        'Эта оценка должна быть объективной, аналитической и основываться строго на фактах из предоставленного текста.\n\n' +
+        'Сначала проанализируй описание вакансии, чтобы выявить и извлечь следующие компоненты:\n' +
+        '1. Базовые требования (общие требования, стек технологий, продолжительность опыта работы и т.д.)\n' +
+        '2. Обязательные требования (критические требования, явно обозначенные как обязательные/требуемые/необходимые)\n' +
+        '3. Желательные требования (предпочтительные навыки, бонусы, дополнительный опыт)\n' +
+        '4. Обязанности (ключевые задачи, ежедневная работа, сфера ответственности)\n\n' +
+        'Затем сопоставь резюме кандидата с этими выявленными элементами и рассчитать оценку совместимости по следующим правилам:\n' +
+        '- Базовая оценка начинается со 100 баллов.\n' +
+        '- Оценка базовых требований: вычти баллы пропорционально доле отсутствующих базовых требований. Максимальный вычет — до 40 баллов (например, если отсутствуют 2 из 4 базовых требований (50%), вычти 20 баллов).\n' +
+        '- Оценка обязательных требований: вычти баллы пропорционально доле отсутствующих обязательных требований. Максимальный вычет — до 30 баллов (например, если отсутствует 1 из 2 обязательных требований (50%), вычти 15 баллов). Если обязательные требования не указаны, баллы не вычитаются.\n' +
+        '- Оценка желательных требований: добавь бонусные баллы пропорционально доле соответствующих желательных требований. Максимальная прибавка — до 10 баллов (например, если соответствует 1 из 2 желательных требований (50%), добавь +5 баллов). Если желательные требования не указаны, баллы не добавляются.\n' +
+        '- Оценка соответствия обязанностей: сравни прошлые обязанности кандидата в его резюме с обязанностями вакансии. Вычти баллы пропорционально доле обязанностей вакансии, которые отсутствуют в опыте кандидата или не отражены в его резюме. Максимальный вычет — до 20 баллов. Если обязанности не указаны, баллы не вычитаются.\n' +
+        '- Ограничение по обязательным требованиям: если какое-либо обязательное требование, указанное в вакансии, полностью отсутствует в резюме кандидата, итоговая оценка не может превышать 80 баллов.\n' +
+        '- Итоговая оценка должна быть строго от 0 до 100 (максимум 100, минимум 0).\n' +
+        '- Будь точен и честен. Не завышай и не занижай оценки.\n\n' +
+        'Также напиши краткое объяснение (2-3 предложения на русском языке), выделяя ключевые совпадающие навыки, плюсы, минусы кандидата и четко указывая любые отсутствующие или несоответствующие требования.\n\n' +
+        'Верни ТОЛЬКО валидный JSON-объект, соответствующий этой схеме:\n' +
         '{\n' +
         '  "score": 80,\n' +
-        '  "reasoning": "Fits well..."\n' +
+        '  "reasoning": "Объяснение..."\n' +
         '}\n' +
-        'Do not write any markdown blocks (like ```json), introduction or surrounding text.'
+        'Не пиши никаких блоков разметки markdown (таких как ```json), вступлений или пояснений вне JSON-объекта.'
     },
     {
       role: 'user',
-      content: `Candidate CV:\n${cvText}\n\n` +
-        `Job Title: ${title}\n` +
-        `Company: ${company}\n` +
-        `Job Description:\n${description}`
+      content: `Резюме кандидата:\n${cvText}\n\n` +
+        `Название вакансии: ${title}\n` +
+        `Компания: ${company}\n` +
+        `Описание вакансии:\n${description}`
     }
   ];
 
@@ -275,21 +287,21 @@ async function generateCoverLetter(cvText, vacancy) {
   const messages = [
     {
       role: 'system',
-      content: 'You are an expert career coach and a professional technical writer. Your task is to write a tailored, high-converting Cover Letter in Russian for a job applicant.\n' +
-        'The letter must be extremely concise (strictly under 500 characters with spaces) and follow these rules:\n' +
-        '1. DO NOT retell the CV: Do not repeat lists of skills, technologies, or job histories that are already clearly visible in the resume. Retelling wastes the recruiter\'s attention.\n' +
-        '2. Start with a greeting.\n' +
-        '3. Why this vacancy: State clearly why the candidate is interested in this specific role and company, using details from the job description (tasks, products, or company domain).\n' +
-        '4. How they stand out: Explain how the candidate\'s unique perspective, passion, or specific experience directly addresses the core challenge of this job.\n' +
-        '5. Tone & Style: Confident, professional, yet written in a natural, conversational human voice. Avoid robotic clichés, epithets, corporate buzzwords, and dry templates.\n' +
-        '6. Formatting: Plain text only. No markdown formatting, no headers, no subject lines, no email metadata.'
+      content: 'Ты — профессиональный карьерный консультант и опытный технический писатель. Твоя задача — написать сопроводительное письмо на русском языке с высокой конверсией для кандидата.\n' +
+        'Письмо должно быть очень кратким (строго менее 500 символов с пробелами) и соответствовать следующим правилам:\n' +
+        '1. НЕ пересказывай резюме: не перечисляй навыки, технологии или опыт работы, которые уже явно видны в резюме. Пересказ тратит внимание рекрутера.\n' +
+        '2. Начни с приветствия.\n' +
+        '3. Почему эта вакансия: четко укажи, почему кандидата интересует именно эта роль и компания, используя детали из описания вакансии (задачи, продукты или сфера деятельности компании).\n' +
+        '4. В чем уникальность: объясни, как уникальный взгляд кандидата, его увлеченность делом или конкретный опыт помогут решить главную задачу на этой позиции.\n' +
+        '5. Тон и стиль: уверенный, профессиональный, но написанный живым, естественным языком. Избегай шаблонных фраз, канцеляризмов, избитых корпоративных штампов и сухих шаблонов.\n' +
+        '6. Форматирование: только простой текст. Никакой разметки markdown, заголовков, тем письма или метаданных email.'
     },
     {
       role: 'user',
-      content: `Candidate Resume:\n${cvText}\n\n` +
-        `Job Title: ${title}\n` +
-        `Company: ${company}\n` +
-        `Job Description:\n${description}`
+      content: `Резюме кандидата:\n${cvText}\n\n` +
+        `Название вакансии: ${title}\n` +
+        `Компания: ${company}\n` +
+        `Описание вакансии:\n${description}`
     }
   ];
 
@@ -308,15 +320,15 @@ async function analyzeCv(cvText) {
     {
       role: 'system',
       content:
-        'You are a professional career coach. Analyze the candidate\'s CV and write a concise assessment. ' +
-        'Highlight 2-3 key strengths and 1-2 areas to improve or missing skills. ' +
-        'Write in Russian. Be specific — reference actual skills, roles, or experience from the CV. ' +
-        'CRITICAL: Your entire response must be no longer than 600 characters (including spaces). ' +
-        'Do NOT use bullet points, markdown, or any formatting. Output plain continuous text only.'
+        'Ты — профессиональный карьерный консультант. Проанализируй резюме кандидата и напиши краткую оценку.\n' +
+        'Выдели 2-3 ключевые сильные стороны и 1-2 области для развития или недостающие навыки.\n' +
+        'Пиши на русском языке. Будь конкретен — ссылайся на реальные навыки, роли или опыт из резюме.\n' +
+        'КРИТИЧЕСКИ ВАЖНО: Твой ответ должен быть длиной не более 600 символов (включая пробелы).\n' +
+        'НЕ используй списки, маркеры (bullet points), разметку markdown или любое другое форматирование. Выводи только сплошной простой текст.'
     },
     {
       role: 'user',
-      content: `Analyze this CV:\n\n${cvText}`
+      content: `Проанализируй это резюме:\n\n${cvText}`
     }
   ];
 

@@ -148,8 +148,10 @@ async function checkUserVacancies(user) {
             }
           });
 
-          // Run batch matching tasks with concurrency limit of 3
-          await limitConcurrency(tasks, 3);
+          // Run batch matching tasks with concurrency limit of 3 (or 1 for GigaChat)
+          const isGigaChat = config.llmBaseUrl && config.llmBaseUrl.includes('giga.chat');
+          const concurrencyLimit = isGigaChat ? 1 : 3;
+          await limitConcurrency(tasks, concurrencyLimit);
         }
       }
     } catch (scrapeErr) {
