@@ -22,3 +22,4 @@ EXPOSE 8000
 
 # Run Express server
 CMD ["node", "backend/server.js"]
+ 
