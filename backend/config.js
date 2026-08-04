@@ -25,6 +25,9 @@ module.exports = {
   // YooKassa Payment Gateway (https://yookassa.ru/developers)
   yookassaShopId: process.env.YOOKASSA_SHOP_ID || '',
   yookassaSecretKey: process.env.YOOKASSA_SECRET_KEY || '',
+  // Additional CIDRs allowed to POST to the payment webhook (e.g. proxy egress IPs).
+  yookassaWebhookAllowedIps: (process.env.YOOKASSA_WEBHOOK_ALLOWED_IPS || '')
+    .split(',').map(s => s.trim()).filter(Boolean),
   yookassaAmount: process.env.YOOKASSA_AMOUNT || '300.00',
   yookassaCurrency: process.env.YOOKASSA_CURRENCY || 'RUB',
 

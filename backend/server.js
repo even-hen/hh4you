@@ -15,6 +15,63 @@ const { sendWelcomeEmail, sendPasswordResetEmail } = require('./notifications');
 
 const app = express();
 
+// YooKassa's documented egress IP ranges for payment webhooks. Requests that
+// don't originate from here (plus any env-configured overrides) are forged and
+// are rejected before any processing. Ranges from the official docs:
+// https://yookassa.ru/developers/using-api/webhooks
+const YOOKASSA_SOURCE_IPS = [
+  '185.71.76.0/27',
+  '185.71.77.0/27',
+  '77.75.153.0/25',
+  '77.75.156.11',
+  '77.75.156.35',
+  '77.75.154.128/25',
+  '2a02:5180::/32',
+  ...(config.yookassaWebhookAllowedIps || []),
+];
+
+function ipv4Bytes(ip) { return ip.split('.').map(Number); }
+
+function ipv6Bytes(ip) {
+  let groups;
+  if (ip.includes('::')) {
+    const head = (ip.split('::')[0] || '').split(':').filter(Boolean);
+    const tail = (ip.split('::')[1] || '').split(':').filter(Boolean);
+    groups = [...head, ...Array(8 - head.length - tail.length).fill('0'), ...tail];
+  } else {
+    groups = ip.split(':');
+  }
+  const bytes = [];
+  for (const g of groups) {
+    const n = parseInt(g || '0', 16);
+    bytes.push((n >> 8) & 0xff, n & 0xff);
+  }
+  return bytes;
+}
+
+function ipInCidr(ip, cidr) {
+  const [net, rawPrefix] = cidr.split('/');
+  const isV6 = net.includes(':');
+  const prefix = rawPrefix != null ? parseInt(rawPrefix, 10) : (isV6 ? 128 : 32);
+  const addr = isV6 ? ipv6Bytes(ip) : ipv4Bytes(ip);
+  const base = isV6 ? ipv6Bytes(net) : ipv4Bytes(net);
+  const whole = prefix >> 3;
+  for (let i = 0; i < whole; i++) if (addr[i] !== base[i]) return false;
+  const rem = prefix % 8;
+  if (rem > 0) {
+    const mask = (0xff << (8 - rem)) & 0xff;
+    if ((addr[whole] & mask) !== (base[whole] & mask)) return false;
+  }
+  return true;
+}
+
+function isAuthorizedYooKassaWebhookIp(ip) {
+  if (!ip) return false;
+  // Normalize IPv4-mapped IPv6 (::ffff:1.2.3.4) to plain IPv4.
+  const normalized = ip.startsWith('::ffff:') ? ip.slice(7) : ip;
+  return YOOKASSA_SOURCE_IPS.some(cidr => ipInCidr(normalized, cidr));
+}
+
 // Middleware
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
@@ -1028,6 +1085,14 @@ app.post('/api/billing/pay', authenticateToken, async (req, res) => {
  *   Интеграция → HTTP-уведомления → https://hh4you.ru/api/billing/webhook
  */
 app.post('/api/billing/webhook', async (req, res) => {
+  // Reject forged notifications that don't come from YooKassa's source IPs.
+  // Bypassed in test mode (mirroring the rate-limit bypass below) so the E2E
+  // billing suite can exercise the handler from localhost.
+  if (!isTestMode && !isAuthorizedYooKassaWebhookIp(req.ip)) {
+    console.error(`[YooKassa Webhook] Rejected request from non-YooKassa IP: ${req.ip}`);
+    return res.sendStatus(403);
+  }
+
   // Respond 200 immediately so YooKassa doesn't retry during our async processing
   res.sendStatus(200);
 
