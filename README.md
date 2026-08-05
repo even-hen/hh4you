@@ -14,36 +14,6 @@ The application periodically scans popular Russian job boards (**HeadHunter**, *
 
 ---
 
-## 🗺️ System Architecture & Data Flow
-
-```mermaid
-graph TD
-    User[User / Job Seeker] -->|1. Uploads CV & Sets Prefs| Frontend[Frontend SPA: Vanilla HTML/CSS/JS]
-    Frontend -->|2. Register / Authenticate| Express[Express.js Server]
-    Express -->|3. Store CV & Config| DB[(SQLite / PostgreSQL Database)]
-    
-    subgraph Background Automation
-        Worker[Background Worker] -->|4. Trigger Scan| Scrapers[Scraper Service]
-        Scrapers -->|5a. RSS Scraper| HH[HeadHunter RSS]
-        Scrapers -->|5b. Suggest API & Cheerio HTML| Habr[Habr Career]
-        Scrapers -->|5c. API Requests| SJ[SuperJob API]
-        
-        Scrapers -->|6. Return Vacancies| Worker
-        Worker -->|7. Deduplicate & Send to Matcher| Matcher[AI Vacancy Matcher]
-        Matcher -->|8. Request Assessment| LLM[LLM Engine: OpenAI/Ollama]
-        LLM -->|9. Evaluation & Cover Letter| Matcher
-        Matcher -->|10. Store Matches & Update Cache| DB
-    end
-    
-    Worker -->|11. Trigger Alert| SMTP[Nodemailer / SMTP]
-    SMTP -->|12. High-Match Email Notifications| User
-    
-    User -->|13. Manage Matches / Paywall| Frontend
-    Frontend -->|14. Process Payments| YooKassa[YooKassa Payment Gateway]
-```
-
----
-
 ## 🧪 QA & Test Automation Infrastructure (Portfolio Highlight)
 
 The project includes a robust, production-grade test automation suite written in **TypeScript** using **Playwright**. The tests are structured to demonstrate industry-standard QA practices, separation of concerns, and clean automation patterns.
