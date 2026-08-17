@@ -224,6 +224,24 @@ export class DbSeeder {
     }
 
     /**
+     * Deactivates subscription/trial for a user by email.
+     */
+    static async deactivateSubscription(email: string): Promise<void> {
+        const db = this.getDbConnection();
+        return new Promise((resolve, reject) => {
+            db.run(
+                `UPDATE users SET subscription_ends_at = NULL, is_trial = 0 WHERE email = ?`,
+                [email],
+                (err) => {
+                    db.close();
+                    if (err) reject(err);
+                    else resolve();
+                }
+            );
+        });
+    }
+
+    /**
      * Reads the current match count for a user from the test DB.
      */
     static async getMatchCount(userId: number): Promise<number> {

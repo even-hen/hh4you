@@ -25,6 +25,7 @@ test.describe('API Suite', () => {
     test('returns 402 for user without active subscription', async ({ authClient, request }) => {
         user = generateUserData();
         await authClient.register(user);
+        await DbSeeder.deactivateSubscription(user.email);
         const loginRes = await authClient.login(user);
         const { access_token } = await loginRes.json() as AuthLoginResponse;
 
