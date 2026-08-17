@@ -2,9 +2,10 @@ import { BaseApiClient } from './base.client';
 
 export interface BillingStatusResponse {
     is_active: boolean;
-    ends_at?: string;
-    is_guest: boolean;
-    guest_expires_at?: string;
+    is_trial?: boolean;
+    subscription_days_left?: number | null;
+    subscription_ends_at?: string | null;
+    status?: string;
 }
 
 export interface BillingPayResponse {

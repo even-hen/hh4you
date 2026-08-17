@@ -23,7 +23,12 @@ test.describe('API: Billing', () => {
     });
 
     test.describe('GET /api/billing/status', () => {
-        test('newly registered user has expired/inactive subscription', async ({ authClient, billingClient }) => {
+        test('newly registered user has subscription status matching GUEST_FLOW_SCENARIO', async ({ request, authClient, billingClient }) => {
+            const configRes = await request.get('/api/guest/config');
+            await expect(configRes).toBeOK();
+            const configData = await configRes.json();
+            const isTrialScenario = configData.guestFlowScenario === 'trial';
+
             user = generateUserData();
             await authClient.register(user);
             const loginRes = await authClient.login(user);
@@ -33,8 +38,14 @@ test.describe('API: Billing', () => {
             await expect(res).toBeOK();
 
             const body = await res.json() as BillingStatusResponse;
-            expect(body.is_active).toBe(false);
-            expect(body.subscription_days_left).toBeNull();
+            if (isTrialScenario) {
+                expect(body.is_active).toBe(true);
+                expect(body.is_trial).toBe(true);
+                expect(body.subscription_days_left).toBe(configData.guestTrialDays);
+            } else {
+                expect(body.is_active).toBe(false);
+                expect(body.subscription_days_left).toBeNull();
+            }
         });
 
         test('returns 401 without auth', async ({ billingClient }) => {

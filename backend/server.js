@@ -155,10 +155,17 @@ app.post('/api/auth/register', registerLimiter, async (req, res) => {
     }
 
     const hashed = hashPassword(password);
+    let subEnd = null;
+    let isTrial = 0;
+
+    if (config.guestFlowScenario === 'trial') {
+      subEnd = new Date(Date.now() + config.guestTrialDays * 24 * 60 * 60 * 1000).toISOString();
+      isTrial = 1;
+    }
 
     const { id } = await dbQuery.run(
-      'INSERT INTO users (email, hashed_password) VALUES (?, ?)',
-      [email, hashed]
+      'INSERT INTO users (email, hashed_password, subscription_ends_at, is_trial) VALUES (?, ?, ?, ?)',
+      [email, hashed, subEnd, isTrial]
     );
 
     // Create default preferences
@@ -167,6 +174,13 @@ app.post('/api/auth/register', registerLimiter, async (req, res) => {
        VALUES (?, '', '', '', '', 75, 1)`,
       [id]
     );
+
+    if (config.guestFlowScenario === 'trial') {
+      // Send welcome email immediately for trial users
+      sendWelcomeEmail(email).catch(err => {
+        console.error(`Failed to send welcome email to ${email}:`, err.message);
+      });
+    }
 
     const user = await dbQuery.get('SELECT id, email FROM users WHERE id = ?', [id]);
     res.json(user);
